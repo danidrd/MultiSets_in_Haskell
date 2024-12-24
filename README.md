@@ -29,8 +29,8 @@ The `MultiSet` module provides the following functionalities:
 
 1. Clone this repository to your local machine:
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/danidrd/MultiSets_in_Haskell.git
+   cd MultiSets_in_Haskell
 2. Ensure you have GHC (Glasgow Haskell Compiler) installed. If not, you can download and install it from the official website: https://www.haskell.org/ghc/
 3. Compile the Haskell source code:
    ```bash
