@@ -9,7 +9,10 @@ main = do
     let ms2 = MS [("b", 1), ("c", 3), ("d", 4)]
     let ms3 = MS [("a", 1), ("b", 2)]
     let ms4 = MS [("a", 1), ("b", 3), ("c", 3)]
-
+    let ms5 = add (add (add (MS []) "b") "b") "a"
+    print ms5
+    assert (ms1 == ms1) "Equality test 1 failed"
+    assert (ms1 /= ms2) "Equality test 2 failed"
     -- Testing add function
     assert (add ms1 "b" == MS [("a", 1), ("b", 3), ("c", 3)]) "add test 1 failed"
     assert (add ms3 "d" == MS [("a", 1), ("b", 2), ("d", 1)]) "add test 2 failed"

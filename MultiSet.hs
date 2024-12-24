@@ -20,9 +20,10 @@ data MSet a = MS [(a, Int)]
 -- all elements are distinct
 well_formed :: Eq a => MSet a -> Bool
 well_formed (MS []) = True
-well_formed (MS ((x, n) : xs)) =
-    (n > 0) && (let notIn x' = foldr (\(y, _) acc -> x' /= y && acc) True xs
-                in notIn x && well_formed (MS xs))
+well_formed (MS ((x, n) : xs))
+    | n <= 0 = False
+    | any (\(y, _) -> x == y) xs = False
+    | otherwise = well_formed (MS xs)
 
 -- Ensure that a multiset is well-formed AFTER performing operations
 ensureWellFormed :: Eq a => MSet a -> MSet a
@@ -30,7 +31,9 @@ ensureWellFormed ms
     | well_formed ms = ms
     | otherwise = error "The multiset is not well-formed."
 
-instance Eq  a => Eq (MSet a) where
+
+
+instance Eq a => Eq (MSet a) where
     (==) :: Eq a => MSet a -> MSet a -> Bool
     (MS []) == (MS []) = True
     (MS []) == _       = False
@@ -41,19 +44,20 @@ instance Eq  a => Eq (MSet a) where
         sameContent :: Eq a => [(a, Int)] -> [(a, Int)] -> Bool
         sameContent [] _ = True
         sameContent ((x, n) : xs') ys =
-            case findAndRemove x n ys of
+            case removeElem x n ys of
                 Just ys' -> sameContent xs' ys' -- Element found; check the rest
                 Nothing  -> False               -- Element not found or multiplicity mismatch
-    
 
         -- Finds an element in the list and removes it if multiplicities match
-        findAndRemove :: Eq a => a -> Int -> [(a, Int)] -> Maybe [(a, Int)]
-        findAndRemove _ _ [] = Nothing -- Element not found
-        findAndRemove x n ((y, m) : ys)
-            | x == y && n == m = Just ys -- Found and matches multiplicity
-            | otherwise        = case findAndRemove x n ys of
-                Just ys' -> Just ((y, m) : ys') -- Keep the current element
-                Nothing  -> Nothing  -- No match found  
+        removeElem :: Eq a => a -> Int -> [(a, Int)] -> Maybe [(a, Int)]
+        removeElem _ _ [] = Nothing
+        removeElem x n ((y, m) : ys)
+            | x == y && n == m = Just ys -- Exact match, remove it
+            | x == y && n /= m = Nothing -- Match found, but multiplicity mismatch
+            | otherwise = case removeElem x n ys of
+                Just ys' -> Just ((y, m) : ys') -- Rebuild list without the matched element
+                Nothing  -> Nothing             -- No match found
+
 
             
 -- Implementation of Foldable instance for MSet
@@ -70,6 +74,9 @@ instance Foldable MSet where
     foldr f acc (MS []) = acc
     foldr f acc (MS ((x, n) : xs)) = f x (foldr f acc (MS xs))
 
+    foldl :: (b -> a -> b) -> b -> MSet a -> b
+    foldl f acc (MS []) = acc
+    foldl f acc (MS ((x, n) : xs)) = foldl f (f acc x) (MS xs)
 -- Implementation of the module MultiSet
 
 -- Empty Constructor
@@ -80,10 +87,10 @@ empty =  MS [];
 add :: Eq a => MSet a -> a -> MSet a
 add (MS []) v = ensureWellFormed $ MS [(v, 1)]
 add (MS ((x, n) : xs)) v
-    | x == v    = ensureWellFormed $ MS ((x, n + 1) : xs)
-    | otherwise = ensureWellFormed $ MS ((x, n) : elems')
+    | x == v    =  MS ((x, n + 1) : xs)
+    | otherwise =  MS ((x, n) : elems')
   where
-    MS elems' = add (MS xs) v
+    MS elems' = ensureWellFormed $ add (MS xs) v
     
 
 
@@ -180,12 +187,13 @@ mapMSet f (MS ((x, n) : xs)) =
 -- values that violate the well-formedness invariant of MSets.
 
 -- Conclusion:
--- The reason mapMSet cannot serve as fmap for a Functor instance of MSet is:
+-- The reasons mapMSet cannot serve as fmap for a Functor instance of MSet are:
 -- 1. Well-formedness: Applying a function to the fst of each pair in the MSet
 -- can violate the well-formedness invariant
 -- 2. Functor Laws: The functor laws (fmap id = id and fmap (f . g) = fmap f . fmap g)
 -- depend on preserving structure, which is not guaranteed due to collapsing duplicates
--- and summing multiplicities.
+-- and summing multiplicities. fmap id doesn't violate the invariant, but the composition
+-- law (composing function different than id...) can be violated due to the collapsing and summing of multiplicities.
 -- 3. Structural Complexity: The MSet is not a simple container like a list or tree;
 -- it has additional constraints (e.g., unique keys and positive multiplicities) that
 -- make it incompatible with the Functor interface.
