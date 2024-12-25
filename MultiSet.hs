@@ -2,6 +2,7 @@
 {-# HLINT ignore "Use camelCase" #-}
 {-# HLINT ignore "Use newtype instead of data" #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# HLINT ignore "Redundant where" #-}
 
 
 module MultiSet(
@@ -11,7 +12,8 @@ module MultiSet(
     occs,
     elems,
     subeq,
-    union
+    union,
+    checkSameElements,
 ) where
 data MSet a = MS [(a, Int)]
     deriving (Show)
@@ -27,12 +29,12 @@ well_formed (MS ((x, n) : xs))
 
 -- Ensure that a multiset is well-formed AFTER performing operations
 ensureWellFormed :: Eq a => MSet a -> MSet a
-ensureWellFormed ms 
+ensureWellFormed ms
     | well_formed ms = ms
     | otherwise = error "The multiset is not well-formed."
 
 
-
+-- Implementation of Eq instance for MSet
 instance Eq a => Eq (MSet a) where
     (==) :: Eq a => MSet a -> MSet a -> Bool
     (MS []) == (MS []) = True
@@ -59,7 +61,7 @@ instance Eq a => Eq (MSet a) where
                 Nothing  -> Nothing             -- No match found
 
 
-            
+
 -- Implementation of Foldable instance for MSet
 -- Minimal set of functuons implemented:
 -- foldMap, foldr
@@ -69,7 +71,7 @@ instance Foldable MSet where
     foldMap f (MS []) = mempty
     foldMap f (MS ((x, n) : xs)) = f x <> foldMap f (MS xs)
 
-    
+
     foldr :: (a -> b -> b) -> b -> MSet a -> b
     foldr f acc (MS []) = acc
     foldr f acc (MS ((x, n) : xs)) = f x (foldr f acc (MS xs))
@@ -77,7 +79,7 @@ instance Foldable MSet where
     foldl :: (b -> a -> b) -> b -> MSet a -> b
     foldl f acc (MS []) = acc
     foldl f acc (MS ((x, n) : xs)) = foldl f (f acc x) (MS xs)
-        
+
 -- Implementation of the module MultiSet
 
 -- Empty Constructor
@@ -92,7 +94,7 @@ add (MS ((x, n) : xs)) v
     | otherwise =  MS ((x, n) : elems')
   where
     MS elems' = add (MS xs) v
-    
+
 
 
 -- Count the occurences of an element in the multiset
@@ -127,7 +129,7 @@ union :: Eq a => MSet a -> MSet a -> MSet a
 union (MS []) (MS []) = MS []
 union (MS []) (MS ys) = MS ys
 union (MS xs) (MS []) = MS xs
-union (MS ((x, n) : xs)) (MS ys) = 
+union (MS ((x, n) : xs)) (MS ys) =
    ensureWellFormed $ MS (combine ((x, n) : xs) ys)
   where
     -- Function for combining elements of MS1 and MS2
@@ -152,9 +154,23 @@ union (MS ((x, n) : xs)) (MS ys) =
 -- the type error, Mset b against [(b, Int)]
 mapMSet :: (a -> b) -> MSet a -> MSet b
 mapMSet f (MS []) = MS []
-mapMSet f (MS ((x, n) : xs)) = 
+mapMSet f (MS ((x, n) : xs)) =
     let (MS xs') = mapMSet f (MS xs) -- Extract the inner list of the resulting MSet
     in MS ((f x, n) : xs')
+
+-- Check if two multisets have the same elements with different multiplicities
+checkSameElements :: Eq a => MSet a -> MSet a -> Bool
+checkSameElements (MS []) (MS []) = True
+checkSameElements (MS []) _ = False
+checkSameElements _ (MS []) = False
+checkSameElements (MS xs) (MS ys) = sameMS (MS xs) (MS ys) && sameMS (MS ys) (MS xs) 
+    where
+        sameMS :: Eq a => MSet a -> MSet a -> Bool
+        sameMS (MS []) _ = True
+        sameMS (MS ((x, _) : xs)) (MS ys) 
+            | occs (MS ys) x >= 1 = sameMS (MS xs) (MS ys)
+            | otherwise = False 
+
 
 -- Why is not possible to use mapMSet as implementation of fmap for MSet istance of Functor?
 -- for the Functor laws:

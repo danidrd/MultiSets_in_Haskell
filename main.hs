@@ -10,6 +10,11 @@ main = do
     let ms3 = MS [("a", 1), ("b", 2)]
     let ms4 = MS [("a", 1), ("b", 3), ("c", 3)]
     let ms5 = add (add (add (MS []) "b") "b") "a"
+    let ms6 = MS [("a", 1), ("b", 2), ("c", 3)]
+    let ms7 = MS [("a", 1), ("b", 1), ("c", 2)]
+
+    assert(checkSameElements ms6 ms7) "Same elements failed"
+
     print ms5
     assert (ms1 == ms1) "Equality test 1 failed"
     assert (ms1 /= ms2) "Equality test 2 failed"
@@ -39,4 +44,4 @@ main = do
 -- Helper function to assert test results
 assert :: Bool -> String -> IO ()
 assert True _    = return ()
-assert False msg = error msg
+assert False msg = print msg

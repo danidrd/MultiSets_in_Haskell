@@ -2,13 +2,15 @@
 
 ## Description
 
-The `MultiSet` module provides an implementation of multisets (sets that allow duplicate elements) in Haskell. It includes functions to perform various operations on multisets, such as adding elements, counting occurrences, extracting elements, checking subset relations, and computing unions.
+The `MultiSet` module provides an implementation of multisets (sets that allow duplicate elements) in Haskell. It includes functions to perform various operations on multisets, such as adding elements, counting occurrences, extracting elements, checking subset relations, computing unions and check same elements between Multisets.
 
 The module ensures that all operations return well-formed multisets, where:
 - All multiplicities are positive.
 - There are no duplicate elements (all elements are distinct).
 
 A `main` program is included to test the functionalities provided by the module.
+A `test` program is included to test also read and write from/to files. (token = \n) => if you want to change the files in input,
+make sure that the file in question is well formatted (only a word for each line).
 
 ---
 
@@ -22,6 +24,7 @@ The `MultiSet` module provides the following functionalities:
 4. **Check Subset Relation**: Determines if one multiset is a subset of another.
 5. **Union**: Computes the union of two multisets, summing the multiplicities of shared elements.
 6. **Ensure Well-Formedness**: All operations guarantee the result is a well-formed multiset.
+7. **Check Same Elements**: Determines if one multiset has the same elements (without considering multiplicities) of another.
 
 ---
 
@@ -40,3 +43,13 @@ The `MultiSet` module provides the following functionalities:
    ```bash
    ./test
    ./main
+   ```
+   **In alternative**:
+   ```bash
+   runghc TestMSet.hs
+   runghc main.hs
+5. Check the results with checker.awk
+   ```bash
+   chmod 755 checker.awk
+   ./checker.awk gana-out.txt anag-out.txt 
+
