@@ -35,6 +35,8 @@ The `MultiSet` module provides the following functionalities:
 3. Compile the Haskell source code:
    ```bash
    ghc -o main main.hs MultiSet.hs
+   ghc -o test TestMSet.hs MultiSet.hs
 4. Run the compiled program:
    ```bash
+   ./test
    ./main
