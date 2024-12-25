@@ -3,6 +3,7 @@
 {-# HLINT ignore "Use newtype instead of data" #-}
 {-# LANGUAGE InstanceSigs #-}
 
+
 module MultiSet(
     MSet(..), -- Export both the type `MS` abd the constructor `MS`
     empty,
@@ -12,7 +13,6 @@ module MultiSet(
     subeq,
     union
 ) where
-
 data MSet a = MS [(a, Int)]
     deriving (Show)
 
@@ -77,6 +77,7 @@ instance Foldable MSet where
     foldl :: (b -> a -> b) -> b -> MSet a -> b
     foldl f acc (MS []) = acc
     foldl f acc (MS ((x, n) : xs)) = foldl f (f acc x) (MS xs)
+        
 -- Implementation of the module MultiSet
 
 -- Empty Constructor
@@ -87,10 +88,10 @@ empty =  MS [];
 add :: Eq a => MSet a -> a -> MSet a
 add (MS []) v = ensureWellFormed $ MS [(v, 1)]
 add (MS ((x, n) : xs)) v
-    | x == v    =  MS ((x, n + 1) : xs)
+    | x == v    =  ensureWellFormed $ MS ((x, n + 1) : xs)
     | otherwise =  MS ((x, n) : elems')
   where
-    MS elems' = ensureWellFormed $ add (MS xs) v
+    MS elems' = add (MS xs) v
     
 
 
