@@ -16,8 +16,14 @@ processMSet content =
     in foldl' add empty ls
 
 writeMSet :: MSet [Char] -> String -> IO ()
-writeMSet mset fileName =
-    writeFile fileName (unlines (elems mset))
+writeMSet mset fileName = 
+    writeFile fileName (unlines (formatMSet mset))
+
+-- Helper function to format the multiset into a list of strings
+formatMSet :: MSet [Char] -> [String]
+formatMSet (MS []) = []
+formatMSet (MS ((x, n) : xs)) = (x ++ " - " ++ show n) : formatMSet (MS xs)
+
 
 main :: IO ()
 main = do
