@@ -163,13 +163,10 @@ checkSameElements :: Eq a => MSet a -> MSet a -> Bool
 checkSameElements (MS []) (MS []) = True
 checkSameElements (MS []) _ = False
 checkSameElements _ (MS []) = False
-checkSameElements (MS xs) (MS ys) = sameMS (MS xs) (MS ys) && sameMS (MS ys) (MS xs) 
-    where
-        sameMS :: Eq a => MSet a -> MSet a -> Bool
-        sameMS (MS []) _ = True
-        sameMS (MS ((x, _) : xs)) (MS ys) 
-            | occs (MS ys) x >= 1 = sameMS (MS xs) (MS ys)
-            | otherwise = False 
+checkSameElements (MS xs) (MS ys) 
+    | length (elems (MS xs)) /= length (elems (MS ys)) = False
+    | length (elems (MS xs)) /= length (elems  (union (MS xs) (MS ys))) = False
+    | otherwise = True
 
 
 -- Why is not possible to use mapMSet as implementation of fmap for MSet istance of Functor?

@@ -13,7 +13,7 @@ main = do
     let ms6 = MS [("a", 1), ("b", 2), ("c", 3)]
     let ms7 = MS [("a", 1), ("b", 1), ("c", 2)]
 
-    assert(checkSameElements ms6 ms7) "Same elements failed"
+    assert(checkSameElements ms6 ms7) "Same elements success"
 
     print ms5
     assert (ms1 == ms1) "Equality test 1 failed"
