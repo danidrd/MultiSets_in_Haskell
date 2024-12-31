@@ -110,6 +110,13 @@ elems :: MSet a -> [a]
 elems (MS []) = []
 elems (MS ((x, n) : xs)) = replicate n x ++ elems (MS xs)
 
+-- Extract as lists all elements from the multisent without counting multiplicities(only distinct elements)
+-- Needed for the function checkSameElements
+-- Function not exported by the module
+elems' :: MSet a -> [a]
+elems' (MS []) = []
+elems' (MS ((x, n) : xs)) = x : elems' (MS xs)
+
 -- Check if a multiset is a subset of another
 subeq :: Eq a => MSet a -> MSet a -> Bool
 subeq (MS []) (MS []) = True
@@ -164,8 +171,8 @@ checkSameElements (MS []) (MS []) = True
 checkSameElements (MS []) _ = False
 checkSameElements _ (MS []) = False
 checkSameElements (MS xs) (MS ys) 
-    | length (elems (MS xs)) /= length (elems (MS ys)) = False
-    | length (elems (MS xs)) /= length (elems  (union (MS xs) (MS ys))) = False
+    | length (elems' (MS xs)) /= length (elems' (MS ys)) = False
+    | length (elems' (MS xs)) /= length (elems'  (union (MS xs) (MS ys))) = False
     | otherwise = True
 
 

@@ -26,7 +26,7 @@ formatMSet :: MSet [Char] -> [String]
 formatMSet (MS []) = []
 formatMSet (MS ((x, n) : xs)) = (x ++ " - " ++ show n) : formatMSet (MS xs)
 
-
+-- Main function for testing the requested functionalities
 main :: IO ()
 main = do
     m1 <- readMSet "../aux_files/anagram.txt"

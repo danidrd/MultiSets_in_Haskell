@@ -2,6 +2,7 @@ module Main where
 
 import MultiSet
 
+-- Main function for testing all the functionalities exposed by the MultiSet module
 main :: IO ()
 main = do
     -- Define some test multisets
